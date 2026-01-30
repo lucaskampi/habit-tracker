@@ -30,7 +30,11 @@ export async function getHabits(userId: string): Promise<Habit[]> {
 }
 
 export async function getHeatmap(userId: string, start: string, end: string): Promise<Heatmap> {
-  const url = new URL(toUrl(`/users/${userId}/habits/dashboard/heatmap`))
+  const path = toUrl(`/users/${userId}/habits/dashboard/heatmap`)
+  const url =
+    path.startsWith('http://') || path.startsWith('https://')
+      ? new URL(path)
+      : new URL(path, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
   url.searchParams.set('start', start)
   url.searchParams.set('end', end)
   const res = await fetch(url.toString(), { cache: 'no-store' })

@@ -114,7 +114,9 @@ export default function DashboardPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold">Heatmap</h2>
-              <div className="text-xs text-slate-500">{start} → {end}</div>
+              <div className="text-xs text-slate-500" suppressHydrationWarning>
+                {start} → {end}
+              </div>
             </div>
             {heatmap ? <Heatmap data={heatmap} /> : <div className="text-sm text-slate-500">Loading…</div>}
           </div>

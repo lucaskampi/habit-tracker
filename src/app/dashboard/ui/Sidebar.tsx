@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 function daysInMonth(year: number, month0: number) {
@@ -15,10 +17,15 @@ export default function Sidebar() {
       <div className="flex items-start justify-between">
         <div>
           <div className="text-3xl font-semibold leading-tight">
-            Happy<br />{now.toLocaleDateString(undefined, { weekday: "long" })}
+            Happy<br />
+            <span suppressHydrationWarning>
+              {now.toLocaleDateString(undefined, { weekday: "long" })}
+            </span>
           </div>
           <div className="text-sm text-slate-500 mt-2">
-            {now.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
+            <span suppressHydrationWarning>
+              {now.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
+            </span>
           </div>
         </div>
         <div className="h-10 w-10 rounded-full bg-slate-200" />
@@ -35,7 +42,9 @@ export default function Sidebar() {
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3">
           <div className="font-semibold">
-            {now.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+            <span suppressHydrationWarning>
+              {now.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <button className="h-8 w-8 rounded-full border border-slate-200">‹</button>
