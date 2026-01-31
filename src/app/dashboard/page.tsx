@@ -59,7 +59,7 @@ export default function DashboardPage() {
   }, [end, start]);
 
   return (
-    <div className="min-h-screen px-6 py-8">
+    <div className="min-h-screen px-6 py-8 bg-[#050407] text-zinc-100">
       <div className="mx-auto max-w-6xl grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-3">
           <Sidebar />
@@ -68,28 +68,28 @@ export default function DashboardPage() {
         <div className="col-span-12 lg:col-span-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-slate-400">Dashboard</div>
+              <div className="text-xs text-zinc-400">Dashboard</div>
               <h1 className="text-2xl font-semibold">Schedule</h1>
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="h-9 px-3 rounded-full bg-white shadow-sm border border-slate-200 text-sm">
+              <button className="h-9 px-3 rounded-full bg-zinc-700 shadow-sm border border-zinc-700 text-sm text-zinc-100">
                 Search
               </button>
-              <button className="h-9 w-9 rounded-full bg-white shadow-sm border border-slate-200" aria-label="Profile" />
+              <button className="h-9 w-9 rounded-full bg-zinc-700 shadow-sm border border-zinc-700 text-zinc-100" aria-label="Profile" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 p-5 shadow-sm border border-amber-100">
+            <div className="rounded-2xl bg-gradient-to-br from-orange-700 to-orange-500 p-5 shadow-sm border border-orange-600 text-white">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium">Weather</div>
-                <a className="text-xs text-slate-500">View details</a>
+                <a className="text-xs text-zinc-400">View details</a>
               </div>
               <div className="mt-6 flex items-end justify-between">
                 <div>
                   <div className="text-4xl font-semibold">12°C</div>
-                  <div className="text-xs text-slate-500 mt-1">Wind 2–4 km/h · Humidity 42%</div>
+                  <div className="text-xs text-zinc-400 mt-1">Wind 2–4 km/h · Humidity 42%</div>
                 </div>
                 <div className="h-24 w-24 rounded-2xl bg-white/60" />
               </div>
@@ -111,31 +111,31 @@ export default function DashboardPage() {
             <StatCard title="Completion" value="58%" caption="last 30 days" />
           </div>
 
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div className="bg-zinc-900 rounded-2xl p-5 shadow-sm border border-zinc-600">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold">Heatmap</h2>
-              <div className="text-xs text-slate-500" suppressHydrationWarning>
+              <div className="text-xs text-zinc-700" suppressHydrationWarning>
                 {start} → {end}
               </div>
             </div>
-            {heatmap ? <Heatmap data={heatmap} /> : <div className="text-sm text-slate-500">Loading…</div>}
+            {heatmap ? <Heatmap data={heatmap} /> : <div className="text-sm text-zinc-700">Loading…</div>}
           </div>
         </div>
 
         <div className="col-span-12 lg:col-span-3 space-y-6">
           <IntegrationsCard />
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div className="bg-zinc-900 rounded-2xl p-5 shadow-sm border border-zinc-600 text-zinc-100">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Trophies</h3>
-              <span className="text-xs text-slate-500">View</span>
+              <span className="text-xs text-zinc-700">View</span>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-slate-200 p-3">
-                <div className="text-xs text-slate-500">7-day streak</div>
+              <div className="rounded-xl border border-zinc-600 p-3 bg-zinc-900">
+                <div className="text-xs text-zinc-700">7-day streak</div>
                 <div className="mt-2 font-semibold">Unlocked</div>
               </div>
-              <div className="rounded-xl border border-slate-200 p-3">
-                <div className="text-xs text-slate-500">15-day streak</div>
+              <div className="rounded-xl border border-zinc-600 p-3 bg-zinc-900">
+                <div className="text-xs text-zinc-700">15-day streak</div>
                 <div className="mt-2 font-semibold">Locked</div>
               </div>
             </div>
