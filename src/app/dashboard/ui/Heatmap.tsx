@@ -49,7 +49,7 @@ export default function Heatmap({ data }: Props) {
   const color = (v: number) => {
     const t = Math.round((v / maxVal) * 4);
     return [
-      "bg-gray-700",
+      "bg-zinc-700",
       "bg-orange-200",
       "bg-orange-300",
       "bg-orange-400",
@@ -75,11 +75,11 @@ export default function Heatmap({ data }: Props) {
           </div>
         ))}
       </div>
-      <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+      <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
         <span>Less</span>
         <div className="flex gap-1">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className={`${color((maxVal * i) / 4)} h-3 w-3 rounded border border-gray-600`} />
+            <div key={i} className={`${color((maxVal * i) / 4)} h-3 w-3 rounded border border-zinc-600`} />
           ))}
         </div>
         <span>More</span>
