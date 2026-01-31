@@ -5,7 +5,8 @@ import Heatmap from "./ui/Heatmap";
 import Sidebar from "./ui/Sidebar";
 import TodoCard from "./ui/TodoCard";
 import StatCard from "./ui/StatCard";
-import IntegrationsCard from "./ui/IntegrationsCard";
+import IntegrationsCard from "./ui/AnalyticsCard";
+import Timer from "./ui/Timer";
 import type { Heatmap as HeatmapMap } from "../../lib/api";
 import { getHeatmap } from "../../lib/api";
 
@@ -66,34 +67,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="col-span-12 lg:col-span-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-zinc-400">Dashboard</div>
-              <h1 className="text-2xl font-semibold">Schedule</h1>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button className="h-9 px-3 rounded-full bg-zinc-700 shadow-sm border border-zinc-700 text-sm text-zinc-100">
-                Search
-              </button>
-              <button className="h-9 w-9 rounded-full bg-zinc-700 shadow-sm border border-zinc-700 text-zinc-100" aria-label="Profile" />
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl bg-gradient-to-br from-orange-700 to-orange-500 p-5 shadow-sm border border-orange-600 text-white">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-medium">Weather</div>
-                <a className="text-xs text-zinc-400">View details</a>
-              </div>
-              <div className="mt-6 flex items-end justify-between">
-                <div>
-                  <div className="text-4xl font-semibold">12°C</div>
-                  <div className="text-xs text-zinc-400 mt-1">Wind 2–4 km/h · Humidity 42%</div>
-                </div>
-                <div className="h-24 w-24 rounded-2xl bg-white/60" />
-              </div>
-            </div>
+            <Timer />
 
             <TodoCard
               title="Today's Todos"
