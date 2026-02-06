@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import HomeCard from "./components/HomeCard";
 import DailyTasks from "./components/DailyTasks";
 import type { Heatmap as HeatmapMap } from "../lib/api";
 import { getHeatmap } from "../lib/api";
@@ -78,17 +78,14 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen px-6 py-8 bg-[#050407] text-zinc-100">
-      <Header onDateSelect={(iso) => setSelectedDate(iso)} onNewHabit={() => {
-        if (typeof window !== 'undefined') window.dispatchEvent(new Event('openNewHabits'));
-      }} />
-      <div className="mx-auto max-w-6xl grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-3">
-          <Sidebar />
-        </div>
-
-        <div className="col-span-12 lg:col-span-6">
-          <DailyTasks dateIso={selectedDate} />
-        </div>
+      <div className="mb-12">
+        <Header onDateSelect={(iso) => setSelectedDate(iso)} onNewHabit={() => {
+          if (typeof window !== 'undefined') window.dispatchEvent(new Event('openNewHabits'));
+        }} />
+      </div>
+      <div className="mx-auto max-w-6xl space-y-8">
+        <HomeCard />
+        <DailyTasks dateIso={selectedDate} />
       </div>
     </div>
   );
