@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   onNewHabit?: () => void;
@@ -21,6 +22,9 @@ export default function Header({ onNewHabit, onDateSelect }: Props) {
 
   const [habitsByDate, setHabitsByDate] = useState<Record<string, Habit[]>>({});
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ left: number; top: number } | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -53,7 +57,7 @@ export default function Header({ onNewHabit, onDateSelect }: Props) {
     return mockData[day] || 0;
   }
 
-  const monthLabel = new Date(viewYear, viewMonth0, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const monthLabel = new Date(viewYear, viewMonth0, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const firstWeekday = new Date(viewYear, viewMonth0, 1).getDay(); // 0..6 Sun..Sat
   const leadingEmpty = (firstWeekday + 6) % 7; // Monday=0
@@ -78,26 +82,100 @@ export default function Header({ onNewHabit, onDateSelect }: Props) {
     };
   }, [open]);
 
+  // compute dropdown position when opening, update on scroll/resize
+  useEffect(() => {
+    if (!open) { setDropdownPos(null); return; }
+    function updatePos() {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const left = rect.left + rect.width / 2 - 160 + window.scrollX;
+      const top = rect.bottom + 8 + window.scrollY;
+      setDropdownPos({ left, top });
+    }
+    updatePos();
+    window.addEventListener('resize', updatePos);
+    window.addEventListener('scroll', updatePos, { passive: true });
+    return () => {
+      window.removeEventListener('resize', updatePos);
+      window.removeEventListener('scroll', updatePos);
+    };
+  }, [open]);
+
+  // close profile dropdown on outside click / Escape
+  useEffect(() => {
+    if (!profileOpen) return;
+    function handleOutside(e: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setProfileOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [profileOpen]);
+
   return (
-    <header className="relative flex items-center justify-between px-6 py-3 bg-transparent">
-      <div className="flex items-center gap-4" />
+    <header className="relative mx-auto max-w-6xl">
+      <div className="px-6 py-3 bg-zinc-800/40 backdrop-blur-lg border border-zinc-700/40 rounded-3xl shadow-md">
+        <div className="relative flex items-center">
+          {/* Left section */}
+          <div className="flex items-center gap-4 z-10">
+            <div className="text-lg font-semibold text-zinc-100">SOEZ Habits</div>
+            <button
+              onClick={onNewHabit}
+              className="h-8 px-3 rounded-lg bg-orange-500 text-white font-medium hover:brightness-95"
+            >
+              New Habit
+            </button>
+          </div>
 
-      <div className="flex-1 flex items-center justify-center">
-        <div className="relative" ref={containerRef}>
-          <button
-            onClick={() => setOpen((s) => !s)}
-            className="px-4 py-2 rounded-md hover:bg-zinc-800 text-zinc-100"
-          >
-            <div className="text-sm font-medium" suppressHydrationWarning>
-              {now.toLocaleDateString(undefined, { weekday: "long" })}
-            </div>
-            <div className="text-xs text-zinc-400" suppressHydrationWarning>
-              {now.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
-            </div>
-          </button>
+          {/* Center section - absolutely positioned */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <div className="relative flex items-center justify-center pointer-events-auto" ref={containerRef}>
+              <div className="flex items-center gap-2">
+                {/* left icons */}
+                <button className="p-2 rounded-md hover:bg-zinc-800/50 text-zinc-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 1.293a1 1 0 00-1.414 0L2 8.586V18a1 1 0 001 1h5v-5h4v5h5a1 1 0 001-1V8.586l-7.293-7.293z" /></svg>
+                </button>
+                <button className="p-2 rounded-md hover:bg-zinc-800/50 text-zinc-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11V5a1 1 0 10-2 0v3a1 1 0 00.293.707l2 2a1 1 0 101.414-1.414L11 7z" clipRule="evenodd" /></svg>
+                </button>
 
-          {open && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 mt-3 bg-zinc-900 rounded-2xl p-4 border border-zinc-700 shadow-lg z-50 w-[320px]">
+                {/* date button center */}
+                <button
+                  onClick={() => setOpen((s) => !s)}
+                  className="px-3 py-1.5 rounded-md hover:bg-zinc-800 text-zinc-100 whitespace-nowrap"
+                >
+                  <div className="text-sm font-medium" suppressHydrationWarning>
+                    {now.toLocaleDateString('en-US', { weekday: "long" })}
+                  </div>
+                  <div className="text-xs text-zinc-400" suppressHydrationWarning>
+                    {now.toLocaleDateString('en-US', { day: "2-digit", month: "short", year: "numeric" })}
+                  </div>
+                </button>
+
+                {/* right icons */}
+                <button className="p-2 rounded-md hover:bg-zinc-800/50 text-zinc-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 6h14v2H3V6zM3 11h14v2H3v-2zM3 16h14v2H3v-2z" />
+                  </svg>
+                </button>
+                <button className="p-2 rounded-md hover:bg-zinc-800/50 text-zinc-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/><path d="M9 18a2 2 0 104 0H9z"/></svg>
+                </button>
+              </div>
+
+              {open && typeof document !== 'undefined' && dropdownPos && createPortal(
+                <div
+                  style={{ left: dropdownPos.left, top: dropdownPos.top, width: 320 }}
+                  className="absolute bg-zinc-900 rounded-2xl p-4 border border-zinc-700 shadow-lg z-[9999]"
+                >
               <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold text-sm">{monthLabel}</div>
                 <div className="flex items-center gap-2">
@@ -167,18 +245,46 @@ export default function Header({ onNewHabit, onDateSelect }: Props) {
                   );
                 })}
               </div>
+                </div>,
+                document.body
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onNewHabit}
-          className="h-9 px-4 rounded-lg bg-teal-400 text-black font-medium hover:brightness-95"
-        >
-          New Habit
-        </button>
+          {/* Right section */}
+          <div className="flex items-center gap-3 ml-auto z-10">
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen((s) => !s)}
+                className="h-10 w-10 rounded-full overflow-hidden border border-zinc-700 bg-transparent flex items-center justify-center"
+                aria-haspopup="true"
+                aria-expanded={profileOpen}
+              >
+                <img
+                  src="https://github.com/lucaskampi.png"
+                  alt="GitHub avatar"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-zinc-900 rounded-xl p-3 border border-zinc-700 shadow-lg z-50">
+                  <div className="text-sm font-medium text-zinc-100">Hello, Kampi</div>
+                  <div className="text-xs text-zinc-400 mt-1">mock@mail.com</div>
+                  <div className="mt-3 border-t border-zinc-700/50 pt-3">
+                    <button
+                      onClick={() => { setProfileOpen(false); console.log('mock logout'); }}
+                      className="w-full text-left px-3 py-2 rounded-md bg-orange-600 hover:bg-orange-500 text-white font-medium"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
