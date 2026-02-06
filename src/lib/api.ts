@@ -30,6 +30,9 @@ export async function getHabits(userId: string): Promise<Habit[]> {
 }
 
 export async function getHeatmap(userId: string, start: string, end: string): Promise<Heatmap> {
+  // If no API base is configured, avoid calling a backend and return empty map
+  if (!API_BASE) return {}
+
   const path = toUrl(`/users/${userId}/habits/dashboard/heatmap`)
   const url =
     path.startsWith('http://') || path.startsWith('https://')

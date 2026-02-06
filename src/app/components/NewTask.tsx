@@ -38,14 +38,10 @@ function saveHabits(habits: RecurringHabit[]) {
   }
 }
 
-export default function NewHabits({ onAdd }: Props) {
+export default function NewTask({ onAdd }: Props) {
   const [title, setTitle] = useState("");
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [habits, setHabits] = useState<RecurringHabit[]>([]);
-
-  useEffect(() => {
-    setHabits(loadHabits());
-  }, []);
+  const [habits, setHabits] = useState<RecurringHabit[]>(() => loadHabits());
 
   useEffect(() => {
     saveHabits(habits);
@@ -63,7 +59,6 @@ export default function NewHabits({ onAdd }: Props) {
     if (!trimmed) return;
 
     const recurringDays = selectedDays.slice();
-    // if all days selected, consider it daily (but we still store days)
     const habit: RecurringHabit = {
       id: Date.now(),
       title: trimmed,
@@ -71,14 +66,12 @@ export default function NewHabits({ onAdd }: Props) {
       createdAt: new Date().toISOString(),
     };
 
-    // Persist immediately so closing/unmount won't lose data
     const next = [...habits, habit];
     setHabits(next);
     saveHabits(next);
     console.log('handleAdd created habit', habit);
     if (onAdd) onAdd(habit);
 
-    // reset form
     setTitle("");
     setSelectedDays([]);
   }
@@ -87,7 +80,7 @@ export default function NewHabits({ onAdd }: Props) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-zinc-100">New Habit</label>
+      <label className="block text-sm font-medium text-zinc-100">New Task</label>
       <div className="flex gap-2">
         <input
           value={title}
@@ -120,7 +113,7 @@ export default function NewHabits({ onAdd }: Props) {
       </div>
 
       <div className="pt-2 border-t border-zinc-800">
-        <div className="text-sm text-zinc-300 mb-2">Existing habits</div>
+        <div className="text-sm text-zinc-300 mb-2">Existing tasks</div>
         <div className="space-y-2 max-h-40 overflow-y-auto">
           {habits.map((h) => (
             <div key={h.id} className="flex items-center justify-between gap-2">
@@ -131,7 +124,7 @@ export default function NewHabits({ onAdd }: Props) {
               <div className="text-xs text-zinc-400">{new Date(h.createdAt).toLocaleDateString()}</div>
             </div>
           ))}
-          {habits.length === 0 && <div className="text-sm text-zinc-400">No habits yet</div>}
+          {habits.length === 0 && <div className="text-sm text-zinc-400">No tasks yet</div>}
         </div>
       </div>
     </div>

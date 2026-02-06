@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import CalendarPopup from "./CalendarPopup";
-import NewHabits from "./NewHabits";
+import NewTask from "./NewTask";
 
 function daysInMonth(year: number, month0: number) {
   return new Date(year, month0 + 1, 0).getDate();
@@ -35,6 +35,7 @@ export default function Sidebar() {
   // UI state for date modal and stored habits
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [newHabitsOpen, setNewHabitsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [habitsByDate, setHabitsByDate] = useState<Record<string, Habit[]>>(() => {
     try {
       if (typeof window === "undefined") return {};
@@ -52,6 +53,22 @@ export default function Sidebar() {
       // ignore
     }
   }, [habitsByDate]);
+
+  useEffect(() => {
+    // mark mounted on the client to avoid rendering client-only state during SSR
+    setMounted(true);
+  }, []);
+
+  // Listen for a global event to open the NewTask modal (header will dispatch this)
+  useEffect(() => {
+    function handler() {
+      setNewHabitsOpen(true);
+    }
+    if (typeof window !== 'undefined') window.addEventListener('openNewHabits', handler as EventListener);
+    return () => {
+      if (typeof window !== 'undefined') window.removeEventListener('openNewHabits', handler as EventListener);
+    };
+  }, []);
 
   const dateKey = (d: number) => `${year}-${month0 + 1}-${d}`;
 
@@ -106,7 +123,7 @@ export default function Sidebar() {
     <aside className="bg-zinc-900 rounded-2xl p-5 shadow-sm border border-zinc-600 text-zinc-100">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-3xl font-semibold leading-tight">
+          <div className="text-2xl font-semibold leading-tight">
             Happy<br />
             <span suppressHydrationWarning>
               {now.toLocaleDateString(undefined, { weekday: "long" })}
@@ -118,17 +135,15 @@ export default function Sidebar() {
             </span>
           </div>
         </div>
-        <div className="h-10 w-10 rounded-full bg-zinc-700" />
+        <img
+          src="https://github.com/lucaskampi.png"
+          alt="Lucas Kampi"
+          className="h-10 w-10 rounded-full object-cover border border-zinc-700"
+          loading="lazy"
+        />
       </div>
 
-      <button onClick={openNewHabits} className="mt-5 w-full h-11 rounded-xl bg-orange-500 text-white font-medium shadow-sm">
-        + New Habits
-      </button>
-
-      <button className="mt-3 w-full h-11 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-100 font-medium">
-        Browse Popular Habits
-      </button>
-
+      {/* New Habit is now exposed via the header button. */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3">
           <div className="font-semibold">
@@ -153,9 +168,13 @@ export default function Sidebar() {
           {days.map((d) => {
             const key = dateKey(d);
             const items = (habitsByDate[key] || []) as Habit[];
-            const computedCompletion = items.length > 0
-              ? Math.round((items.filter((h) => h.completed).length / items.length) * 100)
-              : getDayCompletion(d);
+            // Avoid using client-only data during SSR to prevent hydration mismatch.
+            // While not mounted, render neutral (0%) so server and client markup match.
+            const computedCompletion = mounted
+              ? items.length > 0
+                ? Math.round((items.filter((h) => h.completed).length / items.length) * 100)
+                : getDayCompletion(d)
+              : 0;
             const isComplete = computedCompletion === 100;
             const isToday = d === now.getDate();
 
@@ -218,7 +237,7 @@ export default function Sidebar() {
                 <div className="font-semibold">Create Habit</div>
                 <button onClick={closeNewHabits} className="text-zinc-400">✕</button>
               </div>
-              <NewHabits onAdd={() => { closeNewHabits(); }} />
+              <NewTask onAdd={() => { closeNewHabits(); }} />
             </div>
           </div>,
           document.body
